@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<Settings>
+	<GroupSettings>
+		<Prefix>pre_</Prefix>
+		<SendAsSuffix>_SA</SendAsSuffix>
+		<FullAccessSuffix>_FA</FullAccessSuffix>
+		<CalendarBookingSuffix>_CB</CalendarBookingSuffix>
+		<TargetOU>mcsmemail.de/IT/Groups/Mail</TargetOU>
+		<Domain>mcsmemail.de</Domain>
+		<Seperator>-</Seperator>
+	</GroupSettings>
+	<AccountSettings>
+		<TargetOU>mcsmemail.de/IT/SharedMailboxes</TargetOU>
+	</AccountSettings>
+	<GeneralSettings>
+		<Sleep>10</Sleep>
+	</GeneralSettings>
+</Settings>
