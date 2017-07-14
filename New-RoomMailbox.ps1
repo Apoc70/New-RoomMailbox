@@ -68,7 +68,7 @@
   .EXAMPLE 
   Create a new room mailbox, empty full access and empty send-as security groups
 
-  .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MP-ConferencRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C"
+  .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MB-ConferenceRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C"
 
   .EXAMPLE 
   Create a new room mailbox, empty full access and empty send-as security groups, and add room to room list "Building 1"

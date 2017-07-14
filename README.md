@@ -1,21 +1,21 @@
-# New-TeamMailbox.ps1
-Creates a new shared mailbox, security groups for full access and send-as permission and adds the security groups to the shared mailbox configuration.
+# New-RoomMailbox.ps1
+Creates a new room mailbox, security groups for full access and send-as permission and adds the security groups to the room mailbox configuration.
 
 ## Description
-This scripts creates a new shared mailbox (aka team mailbox) and security groups for full access and and send-as delegation. Security groups are created using a naming convention.
+This scripts creates a new room mailbox and security groups for full access and and send-as delegation. Security groups are created using a naming convention.
 
 ## Parameters
-### TeamMailboxName
-Name attribute of the new team mailbox
+### RoomMailboxName
+Name attribute of the new room mailbox
 
-### TeamMailboxDisplayName
-Display name attribute of the new team mailbox
+### RoomMailboxDisplayName
+Display name attribute of the new room mailbox
 
-### TeamMailboxAlias
-Alias attribute of the new team mailbox
+### RoomMailboxAlias
+Alias attribute of the new room mailbox
 
-### TeamMailboxSmtpAddress
-Primary SMTP address attribute the new team mailbox
+### RoomMailboxSmtpAddress
+Primary SMTP address attribute the new room mailbox
 
 ### DepartmentPrefix
 Department prefix for automatically generated security groups (optional)
@@ -28,14 +28,14 @@ String array containing send as members
 
 ## Examples
 ```
-.\New-TeamMailbox.ps1 -TeamMailboxName "TM-Exchange Admins" -TeamMailboxDisplayName "Exchange Admins" -TeamMailboxAlias "TM-ExchangeAdmins" -TeamMailboxSmtpAddress "ExchangeAdmins@mcsmemail.de" -DepartmentPrefix "IT"
+.\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MB-ConferenceRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C"
 ```
-Create a new team mailbox, empty full access and empty send-as security groups
+reate a new room mailbox, empty full access and empty send-as security groups
 
 
 ## TechNet Gallery
 Find the script at TechNet Gallery
-* https://gallery.technet.microsoft.com/Create-a-new-Mailbox-with-1b02f6e7
+* https://gallery.technet.microsoft.com/Create-a-new-Room-Mailbox-99a4e477
 
 ## Credits
 Written by: Thomas Stensitzki

@@ -5,12 +5,12 @@
 		<SendAsSuffix>_SA</SendAsSuffix>
 		<FullAccessSuffix>_FA</FullAccessSuffix>
 		<CalendarBookingSuffix>_CB</CalendarBookingSuffix>
-		<TargetOU>mcsmemail.de/IT/Groups/Mail</TargetOU>
+		<TargetOU>mcsmemail.de/IT/Groups/Mail/Rooms</TargetOU>
 		<Domain>mcsmemail.de</Domain>
 		<Seperator>-</Seperator>
 	</GroupSettings>
 	<AccountSettings>
-		<TargetOU>mcsmemail.de/IT/SharedMailboxes</TargetOU>
+		<TargetOU>mcsmemail.de/IT/Mail/RoomMailboxes</TargetOU>
 	</AccountSettings>
 	<GeneralSettings>
 		<Sleep>10</Sleep>
