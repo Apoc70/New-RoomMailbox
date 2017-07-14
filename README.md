@@ -26,6 +26,15 @@ String array containing full access members
 ### GroupFullAccessMembers
 String array containing send as members
 
+### RoomPhoneNumber
+Phone number of a phone located in the room, this value will show in the Outlook room list
+
+### RoomList
+Add the new room mailbox to this existing room list
+
+### AutoAccept
+Set room mailbox to automatically accept booking requests
+
 ## Examples
 ```
 .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MB-ConferenceRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C"
