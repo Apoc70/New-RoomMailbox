@@ -1,95 +1,102 @@
 <# 
-  .SYNOPSIS 
-  Creates a new room mailbox, security groups for full access and send-as permission 
-  and adds the security groups to the room mailbox configuration.
+    .SYNOPSIS 
+    Creates a new room mailbox, security groups for full access and send-as permission 
+    and adds the security groups to the room mailbox configuration.
 
-  Thomas Stensitzki 
+    Thomas Stensitzki 
 
-  THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE  
-  RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER. 
+    THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE  
+    RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER. 
 
-  Version 1.0, 2017-07-13
+    Version 1.1, 2018-01-24
 
-  Please send ideas, comments and suggestions to support@granikos.eu 
+    Please send ideas, comments and suggestions to support@granikos.eu 
 
-  .LINK 
-  http://scripts.granikos.eu
+    .LINK 
+    http://scripts.granikos.eu
 
-  .DESCRIPTION 
-  This scripts creates a new room mailbox and additonal security groups
-  for full access and and send-as delegation. The security groups are created 
-  using a confgurable naming convention.
+    .DESCRIPTION 
+    This scripts creates a new room mailbox and additonal security groups
+    for full access and and send-as delegation. The security groups are created 
+    using a confgurable naming convention.
 
-  All required settings are stored in a separate settings.xml file
+    All required settings are stored in a separate settings.xml file
  
-  .NOTES 
-  Requirements 
-  - Windows Server 2012 R2 
-  - Exchange 2013/2016 Management Shell (aka EMS)
+    .NOTES 
+    Requirements 
+    - Windows Server 2012 R2, Windows Server 2016 
+    - Exchange 2013/2016 Management Shell (aka EMS)
 
     
-  Revision History 
-  -------------------------------------------------------------------------------- 
-  1.0 Initial community release
+    Revision History 
+    -------------------------------------------------------------------------------- 
+    1.0 Initial community release
+    1.1 Some PowerShell hygiene, issue #2 closed
    
-  .PARAMETER RoomMailboxName
-  Name attribute of the new team mailbox
+    .PARAMETER RoomMailboxName
+    Name attribute of the new room mailbox
 
-  .PARAMETER RoomMailboxDisplayName
-  Display name attribute of the new team mailbox
+    .PARAMETER RoomMailboxDisplayName
+    Display name attribute of the new room mailbox
 
-  .PARAMETER RoomMailboxAlias
-  Alias attribute of the new team mailbox
+    .PARAMETER RoomMailboxAlias
+    Alias attribute of the new room mailbox
 
-  .PARAMETER RoomMailboxSmtpAddress
-  Primary SMTP address attribute the new team mailbox
+    .PARAMETER RoomMailboxSmtpAddress
+    Primary SMTP address attribute the new room mailbox
 
-  .PARAMETER DepartmentPrefix
-  Department prefix for automatically generated security groups (optional)
+    .PARAMETER DepartmentPrefix
+    Department prefix for automatically generated security groups (optional)
 
-  .PARAMETER GroupFullAccessMembers
-  String array containing full access members
+    .PARAMETER GroupFullAccessMembers
+    String array containing full access members
     
-  .PARAMETER GroupFullAccessMembers
-  String array containing send as members
+    .PARAMETER GroupSendAsMember
+    String array containing send as members
 
-  .PARAMATER RoomCapacity
-  Capacity of the room, this value will show in the Outlook room list
+    .PARAMETER GroupCalendarBooking
+    String array containing users having calendar booking rights
 
-  .PARAMETER RoomPhoneNumber
-  Phone number of a phone located in the room, this value will show in the Outlook room list
+    .PARAMATER RoomCapacity
+    Capacity of the room, this value will show in the Outlook room list
 
-  .PARAMETER RoomList
-  Add the new room mailbox to this existing room list
+    .PARAMETER RoomPhoneNumber
+    Phone number of a phone located in the room, this value will show in the Outlook room list
 
-  .PARAMETER AutoAccept
-  Set room mailbox to automatically accept booking requests
+    .PARAMETER RoomList
+    Add the new room mailbox to this existing room list
+
+    .PARAMETER AutoAccept
+    Set room mailbox to automatically accept booking requests
   
-  .EXAMPLE 
-  Create a new room mailbox, empty full access and empty send-as security groups
+    .EXAMPLE 
+    Create a new room mailbox, empty full access and empty send-as security groups
 
-  .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MB-ConferenceRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C"
+    .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MB-ConferenceRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C"
 
-  .EXAMPLE 
-  Create a new room mailbox, empty full access and empty send-as security groups, and add room to room list "Building 1"
+    .EXAMPLE 
+    Create a new room mailbox, empty full access and empty send-as security groups, and add room to room list "Building 1"
 
-  .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MP-ConferencRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C" -RoomList 'Building 1'
+    .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MP-ConferencRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C" -RoomList 'Building 1'
 
 #> 
 param (
   [parameter(Mandatory,HelpMessage='Room Mailbox Name')]
-  [string]$RoomMailboxName,
+  [string] $RoomMailboxName,
   [parameter(Mandatory,HelpMessage='Room Mailbox Display Name')]
-  [string]$RoomMailboxDisplayName,
+  [string] $RoomMailboxDisplayName,
   [parameter(Mandatory,HelpMessage='Room Mailbox Alias')]
-  [string]$RoomMailboxAlias,
-  [string]$RoomMailboxSmtpAddress = '',
-  [string]$DepartmentPrefix = '',
-  [int]$RoomCapacity = 0,
-  [string]$RoomList = '',
-  [switch]$AutoAccept,
-  [String[]]$GroupFullAccessMembers = @(''),
-  [String[]]$GroupSendAsMember = @()
+  [string] $RoomMailboxAlias,
+  [string] $RoomMailboxSmtpAddress = '',
+  [string] $DepartmentPrefix = '',
+  [int] $RoomCapacity = 0,
+  [string] $RoomList = '',
+  [switch] $AutoAccept,
+  [string[]] $GroupFullAccessMembers = @(''),
+  [string[]] $GroupSendAsMember = @(),
+  # Added for issue #1
+  [string[]] $GroupCalendarBooking = @(),
+  [string] $RoomPhoneNumber = '' 
 )
 
 # Script Path
@@ -105,11 +112,12 @@ if(Test-Path -Path ('{0}\Settings.xml' -f $scriptPath)) {
     $groupPrefix = $Config.Settings.GroupSettings.Prefix
     $groupSendAsSuffix = $Config.Settings.GroupSettings.SendAsSuffix
     $groupFullAccessSuffix = $Config.Settings.GroupSettings.FullAccessSuffix
+    $groupCalendarBookingSuffix = $Config.Settings.GroupSettings.CalendarBookingSuffix
     $groupTargetOU = $Config.Settings.GroupSettings.TargetOU
     $groupDomain = $Config.Settings.GroupSettings.Domain
     $groupPrefixSeperator = $Config.Settings.GroupSettings.Seperator
     
-    # Team mailbox settings
+    # Room mailbox settings
     $roomMailboxTargetOU = $Config.Settings.AccountSettings.TargetOU
 
     # General settings
@@ -128,7 +136,7 @@ if($DepartmentPrefix -ne '') {
     $groupPrefix = ('{0}{1}{2}' -f $groupPrefix, $DepartmentPrefix, $groupPrefixSeperator)
 }
 
-# Create shared team mailbox
+# Create room mailbox
 Write-Verbose -Message ('New-Mailbox -Room -Name {0} -Alias {1}' -f $RoomMailboxName, $RoomMailboxAlias)
 
 if ($RoomMailboxSmtpAddress -ne '') {
@@ -136,6 +144,13 @@ if ($RoomMailboxSmtpAddress -ne '') {
 }
 else {
   $null = New-Mailbox -Room -Name $RoomMailboxName -Alias $RoomMailboxAlias -OrganizationalUnit $roomMailboxTargetOU -DisplayName $RoomMailboxDisplayName
+}
+
+# Set phone number, if defined
+if($RoomPhoneNumber -ne '') {
+  Start-Sleep -Seconds $sleepSeconds
+  
+  $null = Set-User -Phone $RoomPhoneNumber
 }
 
 # Set room capacity, if defined
@@ -161,12 +176,12 @@ if ($AutoAccept) {
 if ($RoomList -ne '') {
   Start-Sleep -Seconds $sleepSeconds
 
-  Write-Verbose "Adding mailbox to room list $($RoomList)"
+  Write-Verbose -Message ('Adding mailbox to room list {0}' -f ($RoomList))
 
   Add-DistributionGroupMember -Identity $RoomList -Member $RoomMailboxAlias
 }
 
-# Create Full Access group
+# Create FullAccess group
 $groupName = ('{0}{1}{2}' -f $groupPrefix, $RoomMailboxAlias, $groupFullAccessSuffix)
 $notes = ('FullAccess for mailbox: {0}' -f $RoomMailboxName)
 $primaryEmail = ('{0}@{1}' -f $groupName, $groupDomain)
@@ -198,7 +213,7 @@ else {
     Set-DistributionGroup -Identity $primaryEmail -HiddenFromAddressListsEnabled $true
 }
 
-# Add full access group to mailbox permissions
+# Add FullAccess group to mailbox permissions
 
 Write-Verbose -Message ('Add-MailboxPermission -Identity {0} -User {1}' -f $RoomMailboxName, $primaryEmail)
 
@@ -241,4 +256,4 @@ Write-Verbose -Message ('Add-ADPermission -Identity {0} -User {1}' -f $RoomMailb
 
 $null = Add-ADPermission -Identity $RoomMailboxName -User $groupName -ExtendedRights 'Send-As'
 
-Write-Host ('Script finished. Team mailbox {0} created.' -f $RoomMailboxName) 
+Write-Host ('Script finished. Room mailbox {0} created.' -f $RoomMailboxName) 

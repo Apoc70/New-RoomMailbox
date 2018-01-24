@@ -32,9 +32,13 @@ Department prefix for automatically generated security groups (optional)
 
 String array containing full access members
 
-### GroupFullAccessMembers
+### GroupSendAsMember
 
 String array containing send as members
+
+### GroupCalendarBooking
+
+String array containing users having calendar booking rights
 
 ### RoomPhoneNumber
 

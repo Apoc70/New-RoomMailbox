@@ -1,5 +1,5 @@
 <#
-    Create-TeamMailbox.ps1
+    Run-NewRoomMailbox.ps1
 
     Helper script to simplify the use of New-RoomMailbox.ps1
 #>
