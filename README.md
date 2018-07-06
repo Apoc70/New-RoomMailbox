@@ -4,7 +4,7 @@ Creates a new room mailbox, security groups for full access and send-as permissi
 
 ## Description
 
-This scripts creates a new room mailbox and security groups for full access and and send-as delegation. Security groups are created using a naming convention.
+This scripts creates a new room mailbox and security groups for full access and and send-as delegation. As a third security security a dedicated group for allowed users to book the new room is created. The CalenderBooking security group is only created, but not assigned to the room mailbox. Security groups are created using a naming convention.
 
 ## Parameters
 
@@ -32,11 +32,11 @@ Department prefix for automatically generated security groups (optional)
 
 String array containing full access members
 
-### GroupSendAsMember
+### GroupSendAsMembers
 
 String array containing send as members
 
-### GroupCalendarBooking
+### GroupCalendarBookingMemebers
 
 String array containing users having calendar booking rights
 
@@ -52,12 +52,15 @@ Add the new room mailbox to this existing room list
 
 Set room mailbox to automatically accept booking requests
 
+### Language
+
+Locale setting for calendar regional configuration language, e.g. de-DE, en-US
+
 ## Examples
 
 ``` PowerShell
 .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MB-ConferenceRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C"
 ```
-
 Create a new room mailbox, empty full access and empty send-as security groups
 
 ## TechNet Gallery
