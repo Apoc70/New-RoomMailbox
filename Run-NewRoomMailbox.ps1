@@ -10,10 +10,11 @@ $roomMailboxAlias = 'MB-ConferenceRoom'
 $roomMailboxSmtpAddress = 'ConferenceRoom@mcsmemail.de'
 $departmentPrefix = 'C'
 $groupFullAccessMembers = @('JohnDoe','JaneDoe')  # Empty = @()
-$groupSendAsMember = @()
-$groupCalendarBooking = @()
+$groupSendAsMembers = @()
+$groupCalendarBookingMembers = @()
 $RoomCapacity = 0
 $RoomList = 'AllRoomsHQ'
+$Language = 'en-GB'
 
 
-.\New-RoomMailbox.ps1 -RoomMailboxName $roomMailboxName -RoomMailboxDisplayName $roomMailboxDisplayName -RoomMailboxAlias $roomMailboxAlias -RoomMailboxSmtpAddress $roomMailboxSmtpAddress -DepartmentPrefix $departmentPrefix -GroupFullAccessMembers $groupFullAccessMembers -GroupSendAsMember $groupSendAsMember -Verbose -RoomCapacity $RoomCapacity -AutoAccept -RoomList $RoomList
+.\New-RoomMailbox.ps1 -RoomMailboxName $roomMailboxName -RoomMailboxDisplayName $roomMailboxDisplayName -RoomMailboxAlias $roomMailboxAlias -RoomMailboxSmtpAddress $roomMailboxSmtpAddress -DepartmentPrefix $departmentPrefix -GroupFullAccessMembers $groupFullAccessMembers -GroupSendAsMembers $groupSendAsMember -Verbose -RoomCapacity $RoomCapacity -AutoAccept -RoomList $RoomList -Language $Language
