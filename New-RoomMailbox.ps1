@@ -1,83 +1,86 @@
 <# 
-    .SYNOPSIS 
-    Creates a new room mailbox, security groups for full access and send-as permission 
-    and adds the security groups to the room mailbox configuration.
+  .SYNOPSIS 
+  Creates a new room mailbox, security groups for full access and send-as permission 
+  and adds the security groups to the room mailbox configuration.
 
-    Thomas Stensitzki 
+  Thomas Stensitzki 
 
-    THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE  
-    RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER. 
+  THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE  
+  RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER. 
 
-    Version 1.1, 2018-01-24
+  Version 1.2, 2018-007-06
 
-    Please send ideas, comments and suggestions to support@granikos.eu 
+  Please send ideas, comments and suggestions to support@granikos.eu 
 
-    .LINK 
-    http://scripts.granikos.eu
+  .LINK 
+  http://scripts.granikos.eu
 
-    .DESCRIPTION 
-    This scripts creates a new room mailbox and additonal security groups
-    for full access and and send-as delegation. The security groups are created 
-    using a confgurable naming convention.
+  .DESCRIPTION 
+  This scripts creates a new room mailbox and additonal security groups
+  for full access and and send-as delegation. The security groups are created 
+  using a confgurable naming convention.
 
-    All required settings are stored in a separate settings.xml file
+  All required settings are stored in a separate settings.xml file
  
-    .NOTES 
-    Requirements 
-    - Windows Server 2012 R2, Windows Server 2016 
-    - Exchange 2013/2016 Management Shell (aka EMS)
-
+  .NOTES 
+  Requirements 
+  - Windows Server 2012 R2, Windows Server 2016 
+  - Exchange 2013/2016 Management Shell (aka EMS)
     
-    Revision History 
-    -------------------------------------------------------------------------------- 
-    1.0 Initial community release
-    1.1 Some PowerShell hygiene, issue #2 closed
+  Revision History 
+  -------------------------------------------------------------------------------- 
+  1.0 Initial community release
+  1.1 Some PowerShell hygiene, issue #2 closed
+  1.2 CalendarBooking added, issue #1
    
-    .PARAMETER RoomMailboxName
-    Name attribute of the new room mailbox
+  .PARAMETER RoomMailboxName
+  Name attribute of the new room mailbox
 
-    .PARAMETER RoomMailboxDisplayName
-    Display name attribute of the new room mailbox
+  .PARAMETER RoomMailboxDisplayName
+  Display name attribute of the new room mailbox
 
-    .PARAMETER RoomMailboxAlias
-    Alias attribute of the new room mailbox
+  .PARAMETER RoomMailboxAlias
+  Alias attribute of the new room mailbox
 
-    .PARAMETER RoomMailboxSmtpAddress
-    Primary SMTP address attribute the new room mailbox
+  .PARAMETER RoomMailboxSmtpAddress
+  Primary SMTP address attribute the new room mailbox
 
-    .PARAMETER DepartmentPrefix
-    Department prefix for automatically generated security groups (optional)
+  .PARAMETER DepartmentPrefix
+  Department prefix for automatically generated security groups (optional)
 
-    .PARAMETER GroupFullAccessMembers
-    String array containing full access members
+  .PARAMETER GroupFullAccessMembers
+  String array containing full access members
     
-    .PARAMETER GroupSendAsMember
-    String array containing send as members
+  .PARAMETER GroupSendAsMembers
+  String array containing send as members
 
-    .PARAMETER GroupCalendarBooking
-    String array containing users having calendar booking rights
+  .PARAMETER GroupCalendarBookingMembers
+  String array containing users having calendar booking rights
 
-    .PARAMATER RoomCapacity
-    Capacity of the room, this value will show in the Outlook room list
+  .PARAMATER RoomCapacity
+  Capacity of the room, this value will show in the Outlook room list
 
-    .PARAMETER RoomPhoneNumber
-    Phone number of a phone located in the room, this value will show in the Outlook room list
+  .PARAMETER RoomPhoneNumber
+  Phone number of a phone located in the room, this value will show in the Outlook room list
 
-    .PARAMETER RoomList
-    Add the new room mailbox to this existing room list
+  .PARAMETER RoomList
+  Add the new room mailbox to this existing room list
 
-    .PARAMETER AutoAccept
-    Set room mailbox to automatically accept booking requests
+  .PARAMETER AutoAccept
+  Set room mailbox to automatically accept booking requests
+
+  .PARAMETER Language
+  Locale setting for calendar regional configuration language, e.g. de-DE, en-US
   
-    .EXAMPLE 
-    Create a new room mailbox, empty full access and empty send-as security groups
+  .EXAMPLE 
+  Create a new room mailbox, empty full access and empty send-as security groups
 
-    .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MB-ConferenceRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C"
+  .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MB-ConferenceRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C"
 
-    .EXAMPLE 
-    Create a new room mailbox, empty full access and empty send-as security groups, and add room to room list "Building 1"
+  .EXAMPLE 
+  Create a new room mailbox, empty full access and empty send-as security groups, and add room to room list "Building 1"
 
-    .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MP-ConferencRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C" -RoomList 'Building 1'
+  .\New-RoomMailbox.ps1 -RoomMailboxName "MB - Conference Room" -RoomMailboxDisplayName "Board Conference Room" -RoomMailboxAlias "MP-ConferencRoom" -RoomMailboxSmtpAddress "ConferenceRoom@mcsmemail.de" -DepartmentPrefix "C" -RoomList 'Building 1'
 
 #> 
 param (
@@ -92,10 +95,11 @@ param (
   [int] $RoomCapacity = 0,
   [string] $RoomList = '',
   [switch] $AutoAccept,
+  [string]$Language = 'de-DE',
   [string[]] $GroupFullAccessMembers = @(''),
-  [string[]] $GroupSendAsMember = @(),
+  [string[]] $GroupSendAsMembers = @(),
   # Added for issue #1
-  [string[]] $GroupCalendarBooking = @(),
+  [string[]] $GroupCalendarBookingMembers = @(),
   [string] $RoomPhoneNumber = '' 
 )
 
@@ -103,6 +107,7 @@ param (
 $scriptPath = Split-Path -Parent -Path $MyInvocation.MyCommand.Path
 
 if(Test-Path -Path ('{0}\Settings.xml' -f $scriptPath)) {
+
     # Load Script settings
     [xml]$Config = Get-Content -Path ('{0}\Settings.xml' -f $scriptPath)
     
@@ -135,6 +140,8 @@ if($DepartmentPrefix -ne '') {
     # Change pattern as needed
     $groupPrefix = ('{0}{1}{2}' -f $groupPrefix, $DepartmentPrefix, $groupPrefixSeperator)
 }
+
+#region Mailbox stuff first
 
 # Create room mailbox
 Write-Verbose -Message ('New-Mailbox -Room -Name {0} -Alias {1}' -f $RoomMailboxName, $RoomMailboxAlias)
@@ -172,6 +179,14 @@ if ($AutoAccept) {
   Set-CalendarProcessing -Identity $RoomMailboxAlias -AutomateProcessing AutoAccept
 }
 
+# Configure Language Regional Configuration
+if($Language -ne '') {
+  
+  Write-Verbose -Message ('Setting calendar regional configuration language to {0}' -f $Language) 
+
+  Set-MailboxRegionalConfiguration -Language $Language
+}
+
 # Add to room list
 if ($RoomList -ne '') {
   Start-Sleep -Seconds $sleepSeconds
@@ -180,6 +195,10 @@ if ($RoomList -ne '') {
 
   Add-DistributionGroupMember -Identity $RoomList -Member $RoomMailboxAlias
 }
+
+#endregion
+
+#region FullAccess
 
 # Create FullAccess group
 $groupName = ('{0}{1}{2}' -f $groupPrefix, $RoomMailboxAlias, $groupFullAccessSuffix)
@@ -198,8 +217,6 @@ if(($GroupFullAccessMembers | Measure-Object).Count -ne 0) {
 
     Start-Sleep -Seconds $sleepSeconds
 
-    # Hide FullAccess group from GAL
-    Set-DistributionGroup -Identity $primaryEmail -HiddenFromAddressListsEnabled $true
 }
 else {
 
@@ -208,16 +225,20 @@ else {
     $null = New-DistributionGroup -Name $groupName -Type Security -OrganizationalUnit $groupTargetOU -PrimarySmtpAddress $primaryEmail -Notes $notes
 
     Start-Sleep -Seconds $sleepSeconds
-
-    # Hide FullAccess group from GAL    
-    Set-DistributionGroup -Identity $primaryEmail -HiddenFromAddressListsEnabled $true
 }
+
+# Hide FullAccess group from GAL    
+Set-DistributionGroup -Identity $primaryEmail -HiddenFromAddressListsEnabled $true
 
 # Add FullAccess group to mailbox permissions
 
 Write-Verbose -Message ('Add-MailboxPermission -Identity {0} -User {1}' -f $RoomMailboxName, $primaryEmail)
 
 $null = Add-MailboxPermission -Identity $RoomMailboxName -User $primaryEmail -AccessRights FullAccess -InheritanceType all
+
+#endregion
+
+#region SendAs
 
 # Create Send As group
 $groupName = ('{0}{1}{2}' -f $groupPrefix, $RoomMailboxAlias, $groupSendAsSuffix)
@@ -228,16 +249,14 @@ Write-Host ('Creating new SendAs Group: {0}' -f $groupName)
 
 Write-Verbose -Message ('New-DistributionGroup -Name {0} -Type Security -OrganizationalUnit {1} -PrimarySmtpAddress {2}' -f $groupName, $groupTargetOU, $primaryEmail)
 
-if(($GroupSendAsMember | Measure-Object).Count -ne 0) {
+if(($GroupSendAsMembers | Measure-Object).Count -ne 0) {
 
   Write-Host ('Creating SendAs group and adding members: {0}' -f $groupName)
 
-  $null = New-DistributionGroup -Name $groupName -Type Security -OrganizationalUnit $groupTargetOU -PrimarySmtpAddress $primaryEmail -Members $GroupSendAsMember -Notes $notes
+  $null = New-DistributionGroup -Name $groupName -Type Security -OrganizationalUnit $groupTargetOU -PrimarySmtpAddress $primaryEmail -Members $GroupSendAsMembers -Notes $notes
 
   Start-Sleep -Seconds $sleepSeconds
 
-  # Hide SendAs from GAL
-  Set-DistributionGroup -Identity $primaryEmail -HiddenFromAddressListsEnabled $true
 }
 else {
 
@@ -247,13 +266,48 @@ else {
 
   Start-Sleep -Seconds $sleepSeconds
 
-  # Hide SendAs from GAL
-  Set-DistributionGroup -Identity $primaryEmail -HiddenFromAddressListsEnabled $true
 }
+
+# Hide SendAs from GAL
+Set-DistributionGroup -Identity $primaryEmail -HiddenFromAddressListsEnabled $true
 
 # Add SendAs permission
 Write-Verbose -Message ('Add-ADPermission -Identity {0} -User {1}' -f $RoomMailboxName, $groupName)
 
 $null = Add-ADPermission -Identity $RoomMailboxName -User $groupName -ExtendedRights 'Send-As'
+
+#endregion
+
+#region CalendarBooking
+
+# Create CalendarBooking group
+$groupName = ('{0}{1}{2}' -f $groupPrefix, $RoomMailboxAlias, $groupCalendarBookingSuffix)
+$notes = ('CalendarBooking for mailbox: {0}' -f $RoomMailboxName)
+$primaryEmail = ('{0}@{1}' -f $groupName, $groupDomain)
+
+Write-Host ('Creating new CalendarBooking Group: {0}' -f $groupName)
+
+Write-Verbose -Message ('New-DistributionGroup -Name {0} -Type Security -OrganizationalUnit {1} -PrimarySmtpAddress {2}' -f $groupName, $groupTargetOU, $primaryEmail)
+
+if(($GroupCalendarBookingMembers | Measure-Object).Count -ne 0) {
+  
+  Write-Host ('Creating CalendarBooking group and adding members: {0}' -f $groupName)
+
+  $null = New-DistributionGroup -Name $groupName -Type Security -OrganizationalUnit $groupTargetOU -PrimarySmtpAddress $primaryEmail -Members $GroupCalendarBookingMembers -Notes $notes
+
+  Start-Sleep -Seconds $sleepSeconds
+
+}
+else {
+
+  Write-Host ('Creating empty CalendarBooking group: {0}' -f $groupName)
+
+  $null = New-DistributionGroup -Name $groupName -Type Security -OrganizationalUnit $groupTargetOU -PrimarySmtpAddress $primaryEmail -Notes $notes
+}
+
+# Hide CalendarBooking group from GAL
+Set-DistributionGroup -Identity $primaryEmail -HiddenFromAddressListsEnabled $true
+
+#endregion
 
 Write-Host ('Script finished. Room mailbox {0} created.' -f $RoomMailboxName) 
