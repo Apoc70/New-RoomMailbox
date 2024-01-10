@@ -15,4 +15,7 @@
 	<GeneralSettings>
 		<Sleep>10</Sleep>
 	</GeneralSettings>
+	<Extensions>
+		<extAttr14>AADSync</extAttr14>
+	</Extensions>
 </Settings>
